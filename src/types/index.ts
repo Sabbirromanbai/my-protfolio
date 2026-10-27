@@ -25,6 +25,52 @@ export interface NavItem {
 }
 
 // ──────────────────────────────────────────────
+// Featured Projects types
+// ──────────────────────────────────────────────
+
+/** Tech keys map to the icons in `src/components/TechIcons.tsx`. */
+export type ProjectTech =
+  | "html"
+  | "css"
+  | "javascript"
+  | "typescript"
+  | "react"
+  | "nextjs"
+  | "tailwind"
+  | "nodejs"
+  | "express"
+  | "restapi"
+  | "mongodb"
+  | "mongoose"
+  | "auth";
+
+/** Accent colors map to the gradient presets in `FeaturedProjects.tsx`. */
+export type ProjectAccent = "indigo" | "violet" | "cyan" | "emerald";
+
+export interface ProjectLinks {
+  /** Live deployed URL, e.g. "https://fitlog.vercel.app". Leave empty if none. */
+  live?: string;
+  /** Public repository URL. Leave empty if none. */
+  github?: string;
+  /** Optional details/case-study URL (internal or external). Leave empty if none. */
+  details?: string;
+}
+
+export interface Project {
+  id: string;
+  title: string;
+  /** Short label shown above the title, e.g. "Fitness Tracking". */
+  category?: string;
+  description: string;
+  /** Screenshot in `public/`, e.g. "/projects/fitlog.png". Empty shows a gradient placeholder. */
+  imageUrl?: string;
+  imageAlt: string;
+  accent: ProjectAccent;
+  tech: ProjectTech[];
+  links: ProjectLinks;
+}
+
+// ──────────────────────────────────────────────
 // Education & Experience types
 // ──────────────────────────────────────────────
 

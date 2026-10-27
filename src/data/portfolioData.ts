@@ -18,6 +18,8 @@ export const personalInfo: PersonalInfo = {
   bio: "I am a dedicated web developer passionate about building scalable, user-friendly applications using React, Next.js, and TypeScript. Committed to writing clean code and solving real-world problems.",
   email: "your.email@example.com",
   phone: "+880 1234-567890",
+  // Optional — shown as a "Location" card in the Contact section when set.
+  location: "",
   // Leave empty to display the built-in avatar placeholder, or add your image to public/profile.jpg
   avatarUrl: "/profile.jpg",
   // Leave empty to display an informative notice, or add your PDF to public/resume.pdf
@@ -44,10 +46,8 @@ export const timelineData: TimelineItem[] = [
     category: "education",
     badge: "Education",
     title: "SSC – Science",
-    // TODO: replace with your real school name
-    organisation: "[ Your School Name ]",
-    // TODO: replace with your actual passing year
-    period: "[ Year ] – [ Year ]",
+    organisation: "KACHALONG GOVERNMENT HIGH SCHOOL",
+    period: "2014 – 2019",
     subtitle: "Secondary School Certificate",
     points: [
       "Completed secondary education with a focus on Science.",
@@ -59,10 +59,8 @@ export const timelineData: TimelineItem[] = [
     category: "education",
     badge: "Education",
     title: "HSC – Science",
-    // TODO: replace with your real college name
-    organisation: "[ Your College Name ]",
-    // TODO: replace with your actual passing year
-    period: "[ Year ] – [ Year ]",
+    organisation: "KACHALONG GOVERNMENT COLLEGE",
+    period: "2020 – 2022",
     subtitle: "Higher Secondary Certificate",
     points: [
       "Continued with Science group at higher secondary level.",
