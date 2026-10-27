@@ -216,13 +216,6 @@ export default function EducationExperience() {
         </div>
 
         {/* ── Edit hint (dev-only style note) ─────────────────────────── */}
-        <p className="mt-2 text-xs text-zinc-400 dark:text-zinc-600">
-          ✏️ To update your education details, edit{" "}
-          <code className="rounded bg-zinc-100 px-1 font-mono dark:bg-zinc-800">
-            src/data/portfolioData.ts
-          </code>{" "}
-          → <code className="rounded bg-zinc-100 px-1 font-mono dark:bg-zinc-800">timelineData</code>.
-        </p>
       </div>
     </section>
   );

@@ -196,25 +196,40 @@ export default function Hero() {
 
           {/* Right Column: Profile Photo Card with Subtle Ambient Glow */}
           <div className="flex justify-center lg:col-span-5">
-            <div className="relative w-full max-w-sm sm:max-w-md">
-              {/* Subtle dual-color ambient glow (Indigo to Violet to Cyan) */}
+            <div className="animate-hero-pop group relative w-full max-w-sm sm:max-w-md">
+              {/* Slowly rotating conic halo behind the card */}
               <div
-                className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-indigo-500/25 via-violet-500/25 to-cyan-500/20 blur-xl opacity-75 dark:opacity-50 transition-opacity"
                 aria-hidden="true"
+                className="animate-hero-halo absolute -inset-3 rounded-[2rem] bg-[conic-gradient(from_0deg,rgba(99,102,241,0.45),rgba(139,92,246,0.4),rgba(34,211,238,0.4),rgba(99,102,241,0.45))] opacity-70 blur-xl dark:opacity-50"
               />
 
-              {personalInfo.avatarUrl ? (
-                <div className="relative overflow-hidden rounded-3xl border border-zinc-200/80 bg-white/80 p-2 shadow-xl backdrop-blur-xs dark:border-zinc-800/80 dark:bg-zinc-900/80">
-                  <Image
-                    src={personalInfo.avatarUrl}
-                    alt={`${personalInfo.name} profile photo`}
-                    width={400}
-                    height={400}
-                    priority
-                    className="aspect-square w-full rounded-2xl object-cover"
-                  />
-                </div>
-              ) : (
+              {/* Pulsing dual-color ambient glow (Indigo to Violet to Cyan) */}
+              <div
+                aria-hidden="true"
+                className="animate-hero-glow absolute -inset-1 rounded-3xl bg-gradient-to-r from-indigo-500/25 via-violet-500/25 to-cyan-500/20 blur-xl"
+              />
+
+              <div className="animate-hero-float relative">
+                {personalInfo.avatarUrl ? (
+                  <div className="relative overflow-hidden rounded-3xl border border-zinc-200/80 bg-white/80 p-2 shadow-xl backdrop-blur-xs transition-colors duration-300 group-hover:border-indigo-300 dark:border-zinc-800/80 dark:bg-zinc-900/80 dark:group-hover:border-indigo-500/50">
+                    <div className="relative overflow-hidden rounded-2xl">
+                      <Image
+                        src={personalInfo.avatarUrl}
+                        alt={`${personalInfo.name} profile photo`}
+                        width={400}
+                        height={400}
+                        priority
+                        sizes="(max-width: 640px) 90vw, (max-width: 1024px) 50vw, 420px"
+                        className="aspect-square w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transform-none"
+                      />
+                      {/* Soft gradient sheen on hover */}
+                      <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-indigo-500/10 via-transparent to-cyan-400/10 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                      />
+                    </div>
+                  </div>
+                ) : (
                 /* Visually attractive, accessible placeholder card */
                 <div className="relative flex aspect-square w-full flex-col items-center justify-center rounded-3xl border border-zinc-200/80 bg-white/90 p-8 text-center shadow-xl backdrop-blur-xs dark:border-zinc-800/80 dark:bg-zinc-900/90">
                   <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-50 to-violet-50 p-1 border border-indigo-100 text-indigo-600 shadow-inner dark:from-indigo-950/60 dark:to-violet-950/60 dark:border-indigo-900/50 dark:text-indigo-400 mb-4">
@@ -242,6 +257,7 @@ export default function Hero() {
                   </p>
                 </div>
               )}
+              </div>
             </div>
           </div>
         </div>

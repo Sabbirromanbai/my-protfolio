@@ -16,8 +16,8 @@ export const personalInfo: PersonalInfo = {
   title: "Frontend / Full-Stack Developer",
   tagline: "Building modern, responsive, and performant web experiences.",
   bio: "I am a dedicated web developer passionate about building scalable, user-friendly applications using React, Next.js, and TypeScript. Committed to writing clean code and solving real-world problems.",
-  email: "your.email@example.com",
-  phone: "+880 1234-567890",
+  email: "sabbirbai811@gmail.com",
+  phone: "+880 1608941748",
   // Optional — shown as a "Location" card in the Contact section when set.
   location: "",
   // Leave empty to display the built-in avatar placeholder, or add your image to public/profile.jpg
