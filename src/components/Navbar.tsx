@@ -114,16 +114,18 @@ export default function Navbar() {
             </a>
           )}
 
-          {/* Download Resume (Primary CTA: tasteful indigo-to-violet gradient) */}
+          {/* View / Download Resume (Primary CTA: premium gradient pill with glow) */}
           {hasResume ? (
             <a
               href={personalInfo.resumeUrl}
               download
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-9 items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 text-sm font-semibold text-white shadow-xs transition-all hover:from-indigo-500 hover:to-violet-500 hover:shadow-indigo-500/20 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              className="group relative inline-flex h-9 items-center gap-2 rounded-full bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500 px-4 text-sm font-semibold text-white shadow-md shadow-indigo-500/25 ring-1 ring-inset ring-white/25 transition-all duration-300 hover:shadow-lg hover:shadow-violet-500/35 hover:brightness-110 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
-              <DownloadIcon className="h-4 w-4" />
+              <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-white/20 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:scale-105 motion-reduce:transform-none">
+                <DownloadIcon className="h-3 w-3" />
+              </span>
               <span>Download Resume</span>
             </a>
           ) : (
@@ -207,9 +209,12 @@ export default function Navbar() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={closeMenu}
-                className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 py-3 text-sm font-semibold text-white shadow-md shadow-indigo-500/20 transition-all hover:from-indigo-500 hover:to-violet-500 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-indigo-600"
+                aria-label="Download Resume (opens in a new tab)"
+                className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500 py-3 text-sm font-semibold text-white shadow-md shadow-indigo-500/25 ring-1 ring-inset ring-white/25 transition-all duration-300 hover:shadow-lg hover:shadow-violet-500/35 hover:brightness-110 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
-                <DownloadIcon className="h-4 w-4" />
+                <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-white/20">
+                  <DownloadIcon className="h-3 w-3" />
+                </span>
                 <span>Download Resume</span>
               </a>
             ) : (

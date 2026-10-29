@@ -160,6 +160,143 @@ body {
   animation: hero-pop-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* ── Hero upgrade: atmosphere, reveals, orbits, badge, scroll ──────────── */
+@keyframes hero-aurora-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-8%, 10%, 0) scale(1.18);
+  }
+}
+
+@keyframes hero-aurora-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.1);
+  }
+  50% {
+    transform: translate3d(10%, -8%, 0) scale(0.95);
+  }
+}
+
+@keyframes hero-aurora-c {
+  0%,
+  100% {
+    transform: translate3d(-6%, 0, 0) scale(1.05);
+  }
+  50% {
+    transform: translate3d(6%, -10%, 0) scale(1.2);
+  }
+}
+
+@keyframes hero-grid-pan {
+  to {
+    transform: translate3d(44px, 44px, 0);
+  }
+}
+
+@keyframes hero-particle-drift {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translateY(-26px);
+  }
+}
+
+@keyframes hero-badge-ring {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+@keyframes hero-gradient-pan {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes hero-scroll-dot {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+}
+
+.animate-hero-aurora-a {
+  animation: hero-aurora-a 24s ease-in-out infinite;
+}
+
+.animate-hero-aurora-b {
+  animation: hero-aurora-b 30s ease-in-out infinite;
+}
+
+.animate-hero-aurora-c {
+  animation: hero-aurora-c 20s ease-in-out infinite;
+}
+
+.animate-hero-grid {
+  animation: hero-grid-pan 9s linear infinite;
+}
+
+.animate-hero-particle {
+  animation: hero-particle-drift 7s ease-in-out infinite;
+}
+
+.animate-hero-badge-ring {
+  animation: hero-badge-ring 3s ease-in-out infinite;
+}
+
+.animate-hero-gradient {
+  background-size: 200% auto;
+  animation: hero-gradient-pan 7s ease-in-out infinite;
+}
+
+.animate-hero-scroll-dot {
+  animation: hero-scroll-dot 2s ease-in-out infinite;
+}
+
+/* Staggered text reveals (reuses hero-pop-in; delays set inline) */
+.hero-rise {
+  animation: hero-pop-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-hero-aurora-a,
+  .animate-hero-aurora-b,
+  .animate-hero-aurora-c,
+  .animate-hero-grid,
+  .animate-hero-particle,
+  .animate-hero-badge-ring,
+  .animate-hero-gradient,
+  .animate-hero-scroll-dot {
+    animation: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-glow-a,
   .animate-glow-b,
@@ -168,7 +305,67 @@ body {
   .animate-hero-float,
   .animate-hero-halo,
   .animate-hero-glow,
-  .animate-hero-pop {
+  .animate-hero-pop,
+  .detail-fade {
+    animation: none;
+  }
+}
+
+/* ── Project details page entrance ────────────────────────────────────── */
+@keyframes project-detail-fade {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.detail-fade {
+  animation: project-detail-fade 600ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detail-fade {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── Education timeline continuous animations ─────────────────────────── */
+@keyframes timeline-bubble-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 16px 4px rgba(99, 102, 241, 0.35);
+  }
+}
+
+.animate-timeline-glow {
+  animation: timeline-bubble-glow 2.6s ease-in-out infinite;
+}
+
+@keyframes timeline-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-timeline-float {
+  animation: timeline-float 5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-timeline-glow,
+  .animate-timeline-float {
     animation: none;
   }
 }

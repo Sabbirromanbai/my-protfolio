@@ -207,3 +207,115 @@ export function NpmIcon({ className = "w-4 h-4", ...props }: TechIconProps) {
     </svg>
   );
 }
+
+/* Concept icons (currentColor) for skills without a specific brand mark. */
+export function UiBoxIcon({ className = "w-4 h-4", ...props }: TechIconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      {...props}
+    >
+      <rect x="3" y="3" width="8" height="8" rx="1.5" />
+      <rect x="13" y="13" width="8" height="8" rx="1.5" />
+      <path d="M13 7h4a4 4 0 014 4v0m-14 5v-1a4 4 0 014-4" />
+    </svg>
+  );
+}
+
+export function ShieldIcon({ className = "w-4 h-4", ...props }: TechIconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      {...props}
+    >
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      <path d="M12 8v4m0 4h.01" />
+    </svg>
+  );
+}
+
+export function KeyIcon({ className = "w-4 h-4", ...props }: TechIconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      {...props}
+    >
+      <circle cx="8" cy="15" r="4" />
+      <path d="M11 12L20 3l2 2-3 3 2 2-3 3" />
+    </svg>
+  );
+}
+
+export function CardIcon({ className = "w-4 h-4", ...props }: TechIconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      {...props}
+    >
+      <rect x="2" y="5" width="20" height="14" rx="3" />
+      <path d="M2 10h20" />
+      <path d="M6 15h4" />
+    </svg>
+  );
+}
+
+export function FlaskIcon({ className = "w-4 h-4", ...props }: TechIconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      {...props}
+    >
+      <path d="M10 2v6L4.5 18a2 2 0 001.8 3h11.4a2 2 0 001.8-3L14 8V2" />
+      <path d="M8 2h8" />
+      <path d="M7 15h10" />
+    </svg>
+  );
+}
+
+export function SparklesIcon({ className = "w-4 h-4", ...props }: TechIconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      {...props}
+    >
+      <path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5z" />
+      <path d="M19 15l1 2.5L22.5 18.5 20 19.5 19 22l-1-2.5-2.5-1L18 17.5 19 15z" />
+    </svg>
+  );
+}

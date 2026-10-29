@@ -1,100 +1,14 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import type { ComponentType } from "react";
 import {
   ArrowUpRightIcon,
   ExternalLinkIcon,
   GithubIcon,
 } from "./Icons";
-import {
-  HtmlIcon,
-  CssIcon,
-  JsIcon,
-  TsIcon,
-  ReactIcon,
-  NextjsIcon,
-  TailwindIcon,
-} from "./TechIcons";
-
-type Tech = {
-  name: string;
-  className: string;
-  Icon: ComponentType<{ className?: string }>;
-};
-
-type Project = {
-  id: string;
-  title: string;
-  eyebrow: string;
-  description: string;
-  longDescription: string;
-  image: string;
-  accent: string;
-  technologies: Tech[];
-  liveUrl?: string;
-  githubUrl: string;
-  featured?: boolean;
-  status: string;
-};
-
-const tech = {
-  next: { name: "Next.js", className: "text-zinc-900 dark:text-white", Icon: NextjsIcon },
-  react: { name: "React", className: "text-cyan-500", Icon: ReactIcon },
-  ts: { name: "TypeScript", className: "text-blue-600", Icon: TsIcon },
-  tailwind: { name: "Tailwind CSS", className: "text-cyan-600", Icon: TailwindIcon },
-  html: { name: "HTML5", className: "text-orange-600", Icon: HtmlIcon },
-  css: { name: "CSS3", className: "text-blue-500", Icon: CssIcon },
-  js: { name: "JavaScript", className: "text-amber-500", Icon: JsIcon },
-} satisfies Record<string, Tech>;
-
-const projects: Project[] = [
-  {
-    id: "fitlog",
-    title: "FitLog",
-    eyebrow: "Fitness · Workout Planner",
-    description:
-      "A responsive workout library for exploring exercises, planning sessions, and saving favourite workouts.",
-    longDescription:
-      "Browse workout details, build a personal plan, save workouts for later, sort exercises, and track workout metrics.",
-    image: "/projects/fitlog.png",
-    accent: "from-emerald-400 via-teal-500 to-cyan-500",
-    technologies: [tech.next, tech.react, tech.ts, tech.tailwind],
-    liveUrl: "https://assignment-06-kappa.vercel.app/",
-    githubUrl: "https://github.com/Sabbirromanbai/A-6",
-    featured: true,
-    status: "Live project",
-  },
-  {
-    id: "pioneer-bank",
-    title: "Pioneer Bank",
-    eyebrow: "Frontend · Banking UI",
-    description:
-      "A beginner-friendly banking interface created to practise DOM manipulation and interactive UI logic.",
-    longDescription:
-      "Practise event handling, balance calculations, and updating interface content in response to user actions.",
-    image: "/projects/pioneer-bank.png",
-    accent: "from-blue-500 via-indigo-500 to-violet-500",
-    technologies: [tech.html, tech.css, tech.js],
-    githubUrl: "https://github.com/Sabbirromanbai/pioneer-bank",
-    status: "Source available",
-  },
-  {
-    id: "pin-matcher",
-    title: "Pin Matcher",
-    eyebrow: "JavaScript · Interactive UI",
-    description:
-      "A small interactive application for practising PIN generation, matching, and validation logic.",
-    longDescription:
-      "A focused JavaScript practice project for connecting user input, conditional logic, and visible feedback.",
-    image: "/projects/pin-matcher.png",
-    accent: "from-fuchsia-500 via-violet-500 to-indigo-500",
-    technologies: [tech.html, tech.css, tech.js],
-    githubUrl: "https://github.com/Sabbirromanbai/pin-matcher",
-    status: "Source available",
-  },
-];
+import { projects, type Project } from "@/data/projects";
 
 function ProjectPreview({ project }: { project: Project }) {
   const [imageFailed, setImageFailed] = useState(false);
@@ -150,8 +64,8 @@ function ProjectPreview({ project }: { project: Project }) {
 function ProjectCard({ project, index }: { project: Project; index: number }) {
   return (
     <article
-      style={{ animationDelay: `${index * 100}ms` }}
-      className="project-reveal group relative flex h-full flex-col overflow-hidden rounded-[1.4rem] border border-zinc-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-indigo-300 hover:shadow-2xl hover:shadow-indigo-950/10 motion-reduce:animate-none motion-reduce:transform-none dark:border-white/10 dark:bg-zinc-900/80 dark:hover:border-indigo-400/40 dark:hover:shadow-indigo-950/30"
+      style={{ animationDelay: `${index * 120}ms` }}
+      className={`project-reveal group relative flex h-full flex-col overflow-hidden rounded-[1.4rem] border border-zinc-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-indigo-300 hover:shadow-2xl hover:shadow-indigo-950/10 motion-reduce:animate-none motion-reduce:transform-none dark:border-white/10 dark:bg-zinc-900/80 dark:hover:border-indigo-400/40 dark:hover:shadow-indigo-950/30 ${project.featured ? "shadow-md shadow-indigo-500/5 ring-1 ring-indigo-300/50 dark:ring-indigo-400/20" : ""}`}
     >
       <div className={`absolute inset-x-0 top-0 z-10 h-1 bg-linear-to-r ${project.accent}`} />
       <ProjectPreview project={project} />
@@ -218,10 +132,14 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
             <GithubIcon className="h-3.5 w-3.5" />
             Source Code
           </a>
-          <span className="ml-auto inline-flex items-center gap-1.5 text-[10px] font-semibold text-zinc-500 dark:text-zinc-400">
-            <span className={`h-1.5 w-1.5 rounded-full ${project.liveUrl ? "bg-emerald-500" : "bg-amber-500"}`} />
-            {project.status}
-          </span>
+          <Link
+            href={`/projects/${project.id}`}
+            aria-label={`View details of ${project.title}`}
+            className="ml-auto inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl bg-linear-to-r from-indigo-600 to-violet-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-indigo-950/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-600/30 hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 motion-reduce:transform-none"
+          >
+            View Details
+            <ArrowUpRightIcon className="h-3.5 w-3.5" />
+          </Link>
         </div>
       </div>
     </article>
@@ -252,7 +170,15 @@ export default function FeaturedProjects() {
     );
 
     observer.observe(element);
-    return () => observer.disconnect();
+
+    // Safety net: if the observer never fires (blocked JS, odd browsers),
+    // reveal everything after a short delay so content is never stuck hidden.
+    const fallback = window.setTimeout(() => setVisible(true), 2500);
+
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(fallback);
+    };
   }, []);
 
   return (

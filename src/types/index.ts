@@ -93,4 +93,10 @@ export interface TimelineItem {
   points: string[];
   /** Set true while the item is still ongoing */
   current?: boolean;
+  /** Optional institution logo/image in `public/`, e.g. "/profile.jpg" */
+  imageUrl?: string;
+  /** Alt text for the institution image */
+  imageAlt?: string;
+  /** How the image fits its container: "contain" (default) for logos, "cover" for photos. */
+  imageFit?: "contain" | "cover";
 }

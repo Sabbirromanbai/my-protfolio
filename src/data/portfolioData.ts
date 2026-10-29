@@ -23,7 +23,7 @@ export const personalInfo: PersonalInfo = {
   // Leave empty to display the built-in avatar placeholder, or add your image to public/profile.jpg
   avatarUrl: "/profile.jpg",
   // Leave empty to display an informative notice, or add your PDF to public/resume.pdf
-  resumeUrl: "",
+  resumeUrl: "/Md_Sabbir_Hossen_Developer_Resume.pdf",
   // Social links will only be displayed when a valid URL is provided below
   socialLinks: {
     github: "", // e.g., "https://github.com/your-username"
@@ -49,6 +49,8 @@ export const timelineData: TimelineItem[] = [
     organisation: "KACHALONG GOVERNMENT HIGH SCHOOL",
     period: "2014 – 2019",
     subtitle: "Secondary School Certificate",
+    imageUrl: "/SchoolImage.jfif",
+    imageAlt: "Kachalong Government High School crest",
     points: [
       "Completed secondary education with a focus on Science.",
       "Developed analytical thinking and problem-solving foundations.",
@@ -62,6 +64,8 @@ export const timelineData: TimelineItem[] = [
     organisation: "KACHALONG GOVERNMENT COLLEGE",
     period: "2020 – 2022",
     subtitle: "Higher Secondary Certificate",
+    imageUrl: "/CollegeImage.jfif",
+    imageAlt: "Kachalong Government College crest",
     points: [
       "Continued with Science group at higher secondary level.",
       "Strengthened logical reasoning and mathematics skills.",
@@ -78,6 +82,9 @@ export const timelineData: TimelineItem[] = [
     period: "2024 – Present",
     current: true,
     subtitle: "Aspiring Full-Stack Developer",
+    imageUrl: "/webdevelopment.jpeg",
+    imageAlt: "Web development concept graphic with connected backend, database, and mobile icons",
+    imageFit: "cover",
     points: [
       "Learning HTML, CSS, and JavaScript as the core foundation of the web.",
       "Practiced React and Next.js by building hands-on UI projects.",
@@ -89,14 +96,18 @@ export const timelineData: TimelineItem[] = [
   {
     id: "programming-hero",
     category: "learning",
-    badge: "Course",
-    title: "Programming Hero – Web Development",
-    organisation: "Programming Hero (Durbar Assignment)",
+    badge: "Currently Learning",
+    title: "AI-Driven Full Stack Web Engineering",
+    organisation: "Programming Hero — Batch 14",
     period: "2024 – Present",
     current: true,
     subtitle: "Structured Full-Stack Web Development Program",
+    // User-provided local image (dedicated PH logo asset)
+    imageUrl: "/Programming-hero.jpg",
+    imageAlt: "Programming Hero glowing logo mark",
     points: [
-      "Following a structured full-stack web development curriculum.",
+      "Batch 14 — currently learning the AI-Driven Full Stack Web Engineering curriculum.",
+      "Following a structured full-stack web development program.",
       "Building real-world projects covering frontend and backend topics.",
       "Practising React, Next.js, Node.js, Express.js, and MongoDB together.",
       "Developing this portfolio as part of the Durbar assignment.",
