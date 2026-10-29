@@ -369,3 +369,772 @@ body {
     animation: none;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Education timeline — premium card motion
+   Accents are fed in via the `--edu-accent` / `--edu-ring` RGB-triplet
+   custom properties set inline per card. All continued motion is
+   transform/opacity only; everything degrades gracefully under
+   prefers-reduced-motion.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Ambient section glow blobs (continued, slow drift) */
+@keyframes edu-ambient-drift-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate3d(5%, 9%, 0) scale(1.14);
+    opacity: 1;
+  }
+}
+
+@keyframes edu-ambient-drift-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.05);
+    opacity: 1;
+  }
+  50% {
+    transform: translate3d(-7%, -9%, 0) scale(0.95);
+    opacity: 0.75;
+  }
+}
+
+.edu-ambient-a {
+  animation: edu-ambient-drift-a 20s ease-in-out infinite;
+}
+
+.edu-ambient-b {
+  animation: edu-ambient-drift-b 26s ease-in-out infinite;
+}
+
+/* Slow drifting glow orb behind each card */
+@keyframes edu-orb-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate3d(3%, -5%, 0) scale(1.07);
+    opacity: 1;
+  }
+}
+
+.edu-orb {
+  animation: edu-orb-drift 13s ease-in-out infinite;
+}
+
+.dark .edu-orb {
+  animation-name: edu-orb-drift-dark;
+}
+
+@keyframes edu-orb-drift-dark {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate3d(3%, -5%, 0) scale(1.07);
+    opacity: 0.9;
+  }
+}
+
+/* Bright flowing light riding the rail (x-centering lives in the keyframes
+   only, so it composes correctly with Tailwind's translate utilities) */
+@keyframes edu-beam-travel {
+  0% {
+    transform: translate(-50%, -100%);
+  }
+  100% {
+    transform: translate(-50%, 400%);
+  }
+}
+
+.edu-beam {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(56, 189, 248, 0.9),
+    rgba(99, 102, 241, 1),
+    rgba(168, 85, 247, 0.9),
+    rgba(34, 211, 238, 0.9),
+    transparent
+  );
+  box-shadow: 0 0 18px 5px rgba(129, 140, 248, 0.45);
+  filter: saturate(1.4);
+}
+
+.animate-edu-beam {
+  animation: edu-beam-travel 5s ease-in-out infinite;
+}
+
+/* Card motion: hover lift, press scale. Entrance reveal lives on the parent
+   wrapper (Tailwind `translate` property) so it never conflicts with this
+   `transform`-based motion. */
+.edu-card {
+  --lift-y: 0px;
+  --card-scale: 1;
+  transform: translate3d(0, var(--lift-y), 0) scale(var(--card-scale));
+  transition:
+    transform 350ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 350ms ease;
+}
+
+.edu-card:hover {
+  --lift-y: -6px;
+  border-color: rgb(var(--edu-accent, 99 102 241) / 0.4);
+  box-shadow:
+    0 18px 40px -14px rgb(var(--edu-accent, 99 102 241) / 0.3),
+    0 8px 18px -8px rgba(0, 0, 0, 0.12);
+}
+
+.edu-card:active {
+  --card-scale: 0.985;
+}
+
+/* Animated accent ring: masked 1px conic sweep around each card */
+@property --edu-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes edu-ring-spin {
+  to {
+    --edu-angle: 360deg;
+  }
+}
+
+.edu-card-ring {
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--edu-angle),
+    transparent 0deg,
+    rgb(var(--edu-ring, 99 102 241) / 0.9) 70deg,
+    rgb(var(--edu-ring, 99 102 241) / 0.35) 160deg,
+    transparent 240deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: edu-ring-spin 7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edu-ambient-a,
+  .edu-ambient-b,
+  .edu-orb,
+  .animate-edu-beam,
+  .edu-card-ring {
+    animation: none;
+  }
+
+  .edu-card-ring {
+    background: linear-gradient(
+      90deg,
+      rgb(var(--edu-ring, 99 102 241) / 0.45),
+      transparent 65%
+    );
+  }
+
+  /* Keep cards flat and still — hover feedback stays via shadow/border color. */
+  .edu-card {
+    transform: none !important;
+    transition: none;
+  }
+
+  .edu-card:hover {
+    --lift-y: 0px;
+    --card-scale: 1;
+    box-shadow: none;
+    border-color: rgb(var(--edu-accent, 99 102 241) / 0.4);
+  }
+
+  .edu-card:active {
+    --card-scale: 1;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Hero — cursor-reactive depth & off-screen pause
+   `--hmx` / `--hmy` (-0.5..0.5) are set by a delegated pointer listener in
+   Hero.tsx (desktop pointers only, skipped under reduced motion). Parallax
+   uses the standalone `translate` property so it never fights the aurora
+   layers' own keyframe transforms.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.hero-parallax-a {
+  translate: calc(var(--hmx, 0) * 22px) calc(var(--hmy, 0) * 16px);
+}
+
+.hero-parallax-b {
+  translate: calc(var(--hmx, 0) * -30px) calc(var(--hmy, 0) * -20px);
+}
+
+.hero-parallax-c {
+  translate: calc(var(--hmx, 0) * 14px) calc(var(--hmy, 0) * -10px);
+}
+
+.hero-parallax-grid {
+  translate: calc(var(--hmx, 0) * -8px) calc(var(--hmy, 0) * -6px);
+}
+
+/* Subtle 3D tilt on the profile card (rAF-throttled CSS variables) */
+.hero-tilt {
+  transform: perspective(1200px) rotateX(calc(var(--hmy, 0) * -4deg))
+    rotateY(calc(var(--hmx, 0) * 4deg));
+  transition: transform 180ms ease-out;
+}
+
+/* Pause the hero's continuous decorative animations while off-screen. */
+.hero-anim-paused .animate-hero-aurora-a,
+.hero-anim-paused .animate-hero-aurora-b,
+.hero-anim-paused .animate-hero-aurora-c,
+.hero-anim-paused .animate-hero-grid,
+.hero-anim-paused .animate-hero-particle,
+.hero-anim-paused .animate-hero-badge-ring,
+.hero-anim-paused .animate-hero-halo,
+.hero-anim-paused .animate-hero-glow,
+.hero-anim-paused .animate-hero-float,
+.hero-anim-paused .animate-hero-scroll-dot,
+.hero-anim-paused .animate-timeline-float {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-parallax-a,
+  .hero-parallax-b,
+  .hero-parallax-c,
+  .hero-parallax-grid {
+    translate: none;
+  }
+
+  .hero-tilt {
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Navbar — floating premium pill
+   Entrance + drawer animations, animated conic edge ring, and the ambient
+   glow beneath the pill. All transform/opacity only.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@keyframes nav-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -18px, 0) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.animate-nav-enter {
+  animation: nav-enter 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes nav-drop {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -10px, 0) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.animate-nav-drop {
+  animation: nav-drop 280ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+  transform-origin: top center;
+}
+
+@keyframes nav-item-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-nav-item {
+  animation: nav-item-in 300ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+/* Slow drifting ambient glow beneath the pill */
+@keyframes nav-glow-drift {
+  0%,
+  100% {
+    transform: translate3d(-2%, 0, 0) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate3d(2%, -6%, 0) scale(1.05);
+    opacity: 1;
+  }
+}
+
+.nav-glow {
+  background:
+    radial-gradient(45% 90% at 20% 50%, rgba(99, 102, 241, 0.4), transparent),
+    radial-gradient(45% 90% at 80% 50%, rgba(34, 211, 238, 0.35), transparent),
+    radial-gradient(40% 80% at 50% 50%, rgba(139, 92, 246, 0.35), transparent);
+  animation: nav-glow-drift 12s ease-in-out infinite;
+}
+
+.dark .nav-glow {
+  background:
+    radial-gradient(45% 90% at 20% 50%, rgba(99, 102, 241, 0.5), transparent),
+    radial-gradient(45% 90% at 80% 50%, rgba(34, 211, 238, 0.45), transparent),
+    radial-gradient(40% 80% at 50% 50%, rgba(139, 92, 246, 0.4), transparent);
+}
+
+/* Animated gradient edge: masked 1px conic sweep around the pill */
+@property --nav-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes nav-ring-spin {
+  to {
+    --nav-angle: 360deg;
+  }
+}
+
+.nav-ring {
+  padding: 1px;
+  background: conic-gradient(
+    from var(--nav-angle),
+    transparent 0deg,
+    rgba(99, 102, 241, 0.55) 60deg,
+    rgba(34, 211, 238, 0.45) 140deg,
+    transparent 220deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: nav-ring-spin 10s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-nav-enter,
+  .animate-nav-drop,
+  .animate-nav-item,
+  .nav-glow,
+  .nav-ring {
+    animation: none;
+  }
+
+  .nav-ring {
+    background: linear-gradient(
+      90deg,
+      rgba(99, 102, 241, 0.4),
+      rgba(34, 211, 238, 0.3) 70%,
+      transparent
+    );
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Projects showcase — premium card motion
+   Accents are fed in via the `--proj-accent` RGB-triplet custom property set
+   inline per card. Continuous motion is transform/opacity only and is paused
+   off-screen via the `proj-anim-paused` class; everything degrades gracefully
+   under prefers-reduced-motion.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Ambient section glow blobs (continued, slow drift) */
+@keyframes proj-ambient-drift-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate3d(6%, 10%, 0) scale(1.14);
+    opacity: 1;
+  }
+}
+
+@keyframes proj-ambient-drift-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.05);
+    opacity: 1;
+  }
+  50% {
+    transform: translate3d(-8%, -8%, 0) scale(0.95);
+    opacity: 0.75;
+  }
+}
+
+.proj-ambient-a {
+  animation: proj-ambient-drift-a 22s ease-in-out infinite;
+}
+
+.proj-ambient-b {
+  animation: proj-ambient-drift-b 28s ease-in-out infinite;
+}
+
+/* Slow ambient accent glow behind each card */
+@keyframes proj-orb-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.16;
+  }
+  50% {
+    transform: translate3d(3%, -4%, 0) scale(1.06);
+    opacity: 0.3;
+  }
+}
+
+.proj-orb {
+  animation: proj-orb-drift 15s ease-in-out infinite;
+}
+
+.dark .proj-orb {
+  animation-name: proj-orb-drift-dark;
+}
+
+@keyframes proj-orb-drift-dark {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.22;
+  }
+  50% {
+    transform: translate3d(3%, -4%, 0) scale(1.06);
+    opacity: 0.4;
+  }
+}
+
+/* Gentle ken-burns drift on screenshots */
+@keyframes proj-image-drift {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.04);
+  }
+}
+
+.proj-image-drift {
+  animation: proj-image-drift 18s ease-in-out infinite alternate;
+}
+
+/* Floating light accents over the screenshot */
+@keyframes proj-bubble-float {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translateY(-8px);
+    opacity: 1;
+  }
+}
+
+.proj-bubble {
+  animation: proj-bubble-float 6s ease-in-out infinite;
+}
+
+/* Animated accent ring: masked 1px conic sweep around each card */
+@property --proj-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes proj-ring-spin {
+  to {
+    --proj-angle: 360deg;
+  }
+}
+
+.proj-card-ring {
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--proj-angle),
+    transparent 0deg,
+    rgb(var(--proj-accent, 99 102 241) / 0.85) 80deg,
+    rgb(var(--proj-accent, 99 102 241) / 0.3) 170deg,
+    transparent 250deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: proj-ring-spin 8s linear infinite;
+}
+
+/* Card motion: hover lift + press scale via independent translate/scale
+   properties so they compose with the entrance keyframe animation. */
+.proj-card {
+  --lift-y: 0px;
+  --card-scale: 1;
+  translate: 0 var(--lift-y);
+  scale: var(--card-scale);
+  transition:
+    translate 350ms cubic-bezier(0.22, 1, 0.36, 1),
+    scale 200ms ease,
+    box-shadow 350ms ease,
+    border-color 350ms ease;
+}
+
+.proj-card:hover {
+  --lift-y: -6px;
+  border-color: rgb(var(--proj-accent, 99 102 241) / 0.45);
+  box-shadow:
+    0 20px 45px -15px rgb(var(--proj-accent, 99 102 241) / 0.3),
+    0 10px 20px -10px rgba(0, 0, 0, 0.15);
+}
+
+.proj-card:active {
+  --card-scale: 0.985;
+}
+
+/* Pause continuous decorative animations while the section is off-screen.
+   Entrance reveals and hover transitions are excluded on purpose. */
+.proj-anim-paused .proj-ambient-a,
+.proj-anim-paused .proj-ambient-b,
+.proj-anim-paused .proj-orb,
+.proj-anim-paused .proj-image-drift,
+.proj-anim-paused .proj-bubble,
+.proj-anim-paused .proj-card-ring {
+  animation-play-state: paused;
+}
+
+/* Staggered entrance reveal (moved out of the component's styled-jsx) */
+@keyframes projectReveal {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.project-reveal {
+  opacity: 0;
+}
+
+.projects-visible .project-reveal {
+  animation: projectReveal 650ms cubic-bezier(0.2, 0.75, 0.25, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .proj-ambient-a,
+  .proj-ambient-b,
+  .proj-orb,
+  .proj-image-drift,
+  .proj-bubble,
+  .proj-card-ring,
+  .project-reveal,
+  .projects-visible .project-reveal {
+    animation: none;
+  }
+
+  .project-reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  .proj-card {
+    translate: none;
+    scale: none;
+    transition: none;
+  }
+
+  .proj-card:hover {
+    --lift-y: 0px;
+    --card-scale: 1;
+    border-color: rgb(var(--proj-accent, 99 102 241) / 0.45);
+    box-shadow: 0 6px 20px -8px rgba(0, 0, 0, 0.15);
+  }
+
+  .proj-card:active {
+    --card-scale: 1;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Skills Explorer — premium card motion
+   All decorative motion is transform/opacity only. The section toggles the
+   `skills-anim-paused` class via IntersectionObserver to pause continuous
+   animations while off-screen, and everything degrades gracefully under
+   prefers-reduced-motion.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Ambient section glow blobs (continued, slow drift) */
+@keyframes skills-glow-drift-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate3d(6%, 10%, 0) scale(1.12);
+    opacity: 1;
+  }
+}
+
+@keyframes skills-glow-drift-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.05);
+    opacity: 1;
+  }
+  50% {
+    transform: translate3d(-8%, -8%, 0) scale(0.95);
+    opacity: 0.75;
+  }
+}
+
+.skills-glow-a {
+  animation: skills-glow-drift-a 22s ease-in-out infinite;
+}
+
+.skills-glow-b {
+  animation: skills-glow-drift-b 28s ease-in-out infinite;
+}
+
+/* Gentle icon float (delays staggered inline) */
+@keyframes skills-icon-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.skills-float {
+  animation: skills-icon-float 5.5s ease-in-out infinite;
+}
+
+/* Soft always-on ambient glow inside each card */
+@keyframes skills-ambient-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.16;
+  }
+  50% {
+    transform: translate3d(4%, -6%, 0) scale(1.08);
+    opacity: 0.28;
+  }
+}
+
+.skills-ambient {
+  animation: skills-ambient-drift 14s ease-in-out infinite;
+}
+
+.dark .skills-ambient {
+  animation-name: skills-ambient-drift-dark;
+}
+
+@keyframes skills-ambient-drift-dark {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.22;
+  }
+  50% {
+    transform: translate3d(4%, -6%, 0) scale(1.08);
+    opacity: 0.38;
+  }
+}
+
+/* Card motion: hover lift + press scale + JS-driven 3D tilt (CSS vars set
+   by a delegated pointer listener, desktop pointers only). */
+.skills-card {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --lift-y: 0px;
+  --card-scale: 1;
+  transform: perspective(1000px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y))
+    translate3d(0, var(--lift-y), 0) scale(var(--card-scale));
+  transition:
+    transform 180ms ease-out,
+    box-shadow 300ms ease;
+}
+
+.skills-card:hover {
+  --lift-y: -6px;
+}
+
+.skills-card:active {
+  --card-scale: 0.98;
+}
+
+/* Staggered entrance reveal (the component remounts the panel on tab change,
+   so switching categories re-runs the animation with inline delays) */
+@keyframes skills-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.skill-reveal {
+  animation: skills-reveal 450ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+/* Pause continuous decorative animations while the section is off-screen.
+   Entrance reveals are excluded on purpose so they can never freeze mid-way. */
+.skills-anim-paused .skills-float,
+.skills-anim-paused .skills-ambient,
+.skills-anim-paused .skills-glow-a,
+.skills-anim-paused .skills-glow-b {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skills-glow-a,
+  .skills-glow-b,
+  .skills-float,
+  .skills-ambient,
+  .skill-reveal {
+    animation: none;
+  }
+
+  .skill-reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Keep cards flat and still — hover feedback stays via shadow/border color. */
+  .skills-card {
+    transform: none !important;
+    transition: none;
+  }
+
+  .skills-card:hover,
+  .skills-card:active {
+    --lift-y: 0px;
+    --card-scale: 1;
+  }
+}

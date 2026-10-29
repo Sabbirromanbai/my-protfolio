@@ -123,6 +123,9 @@ function ContactItem({
 export default function Contact() {
   const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  // Track on-screen state so the always-on decorative animations can pause
+  // while the section is out of view.
+  const [onScreen, setOnScreen] = useState(false);
 
   const [values, setValues] = useState<FormValues>(EMPTY_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -138,15 +141,18 @@ export default function Contact() {
     if (!currentRef) return;
 
     if (typeof IntersectionObserver === "undefined") {
-      const frame = requestAnimationFrame(() => setIsVisible(true));
+      const frame = requestAnimationFrame(() => {
+        setIsVisible(true);
+        setOnScreen(true);
+      });
       return () => cancelAnimationFrame(frame);
     }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
+        setOnScreen(entry.isIntersecting);
         if (entry.isIntersecting) {
           setIsVisible(true);
-          observer.disconnect();
         }
       },
       { threshold: 0.1 }

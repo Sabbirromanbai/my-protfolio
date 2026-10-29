@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { personalInfo } from "@/data/portfolioData";
@@ -76,8 +76,70 @@ function useTypingAnimation(words: string[], typingSpeed = 80, deletingSpeed = 5
 }
 
 export default function Hero() {
+  const sectionRef = useRef<HTMLElement>(null);
   const [showNotice, setShowNotice] = useState(false);
+  // Hero is on-screen when the page loads; pause the always-on animations
+  // whenever the section scrolls out of view.
+  const [onScreen, setOnScreen] = useState(true);
   const animatedTitle = useTypingAnimation(TITLES);
+
+  // Pause decorative animations while off-screen (transform/opacity motion only).
+  useEffect(() => {
+    const element = sectionRef.current;
+    if (!element) return;
+
+    if (typeof IntersectionObserver === "undefined") return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setOnScreen(entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  // Cursor-reactive depth: gently translates the aurora layers and tilts the
+  // profile card. Desktop pointers only, never with reduced motion.
+  useEffect(() => {
+    const element = sectionRef.current;
+    if (!element) return;
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let raf = 0;
+    let nx = 0; // -0.5 .. 0.5 across the section
+    let ny = 0;
+
+    const update = () => {
+      raf = 0;
+      element.style.setProperty("--hmx", nx.toFixed(3));
+      element.style.setProperty("--hmy", ny.toFixed(3));
+    };
+    const requestUpdate = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+
+    const onMove = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse") return;
+      const rect = element.getBoundingClientRect();
+      nx = (event.clientX - rect.left) / rect.width - 0.5;
+      ny = (event.clientY - rect.top) / rect.height - 0.5;
+      requestUpdate();
+    };
+    const onLeave = () => {
+      nx = 0;
+      ny = 0;
+      requestUpdate();
+    };
+
+    element.addEventListener("pointermove", onMove);
+    element.addEventListener("pointerleave", onLeave);
+    return () => {
+      element.removeEventListener("pointermove", onMove);
+      element.removeEventListener("pointerleave", onLeave);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
 
   // Collect social links only when a valid, non-empty URL is provided
   const socials = [
@@ -102,18 +164,25 @@ export default function Hero() {
 
   return (
     <section
+      ref={sectionRef}
       id="home"
       aria-label="Introduction & Hero"
-      className="relative isolate overflow-hidden py-16 sm:py-24 lg:py-32"
+      className={`relative isolate overflow-hidden py-16 sm:py-24 lg:py-32 ${onScreen ? "" : "hero-anim-paused"}`}
     >
       {/* ── Futuristic atmosphere: slow aurora, soft grid, gentle particles ── */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <div className="animate-hero-aurora-a absolute -left-32 -top-24 h-[26rem] w-[26rem] rounded-full bg-indigo-400/20 blur-3xl dark:bg-indigo-500/10" />
-        <div className="animate-hero-aurora-b absolute -right-32 top-1/4 h-[30rem] w-[30rem] rounded-full bg-violet-400/15 blur-3xl dark:bg-violet-500/10" />
-        <div className="animate-hero-aurora-c absolute -bottom-32 left-1/4 h-[24rem] w-[24rem] rounded-full bg-cyan-300/15 blur-3xl dark:bg-cyan-500/10" />
+        <div className="hero-parallax-a absolute -left-32 -top-24">
+          <div className="animate-hero-aurora-a h-[26rem] w-[26rem] rounded-full bg-indigo-400/20 blur-3xl dark:bg-indigo-500/10" />
+        </div>
+        <div className="hero-parallax-b absolute -right-32 top-1/4">
+          <div className="animate-hero-aurora-b h-[30rem] w-[30rem] rounded-full bg-violet-400/15 blur-3xl dark:bg-violet-500/10" />
+        </div>
+        <div className="hero-parallax-c absolute -bottom-32 left-1/4">
+          <div className="animate-hero-aurora-c h-[24rem] w-[24rem] rounded-full bg-cyan-300/15 blur-3xl dark:bg-cyan-500/10" />
+        </div>
 
-        {/* Subtle drifting grid, masked to the centre */}
-        <div className="absolute inset-0 overflow-hidden [mask-image:radial-gradient(ellipse_65%_60%_at_50%_35%,black,transparent)]">
+        {/* Subtle drifting grid, masked to the centre, slight counter-parallax */}
+        <div className="hero-parallax-grid absolute inset-0 overflow-hidden [mask-image:radial-gradient(ellipse_65%_60%_at_50%_35%,black,transparent)]">
           <div className="animate-hero-grid h-[calc(100%+44px)] w-[calc(100%+44px)] [background-image:linear-gradient(to_right,rgba(99,102,241,0.10)_1px,transparent_1px),linear-gradient(to_bottom,rgba(99,102,241,0.10)_1px,transparent_1px)] [background-size:44px_44px] [mask-image:radial-gradient(ellipse_60%_55%_at_50%_40%,black,transparent)] dark:[background-image:linear-gradient(to_right,rgba(129,140,248,0.14)_1px,transparent_1px),linear-gradient(to_bottom,rgba(129,140,248,0.14)_1px,transparent_1px)]" />
         </div>
 
@@ -144,17 +213,19 @@ export default function Hero() {
               <span className="text-xs font-bold tracking-widest uppercase text-zinc-500 dark:text-zinc-400">
                 Welcome to my portfolio
               </span>
-              <h1 className="mt-2 text-4xl font-extrabold tracking-tight text-zinc-900 sm:text-5xl lg:text-6xl dark:text-zinc-50 leading-[1.1]">
-                Hi, I&apos;m{" "}
-                <span className="animate-hero-gradient bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500 bg-clip-text text-transparent">
+              <h1 className="mt-2 font-black leading-[1.05] tracking-tight text-zinc-900 text-[clamp(2.25rem,4.5vw+1rem,4.5rem)] dark:text-zinc-50">
+                Hi, I&apos;m
+                <span className="animate-hero-gradient mt-2 block bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500 bg-clip-text pb-1 text-transparent">
                   {personalInfo.name}
                 </span>
               </h1>
-              <p className="mt-3 h-8 text-xl font-semibold text-indigo-600 sm:text-2xl dark:text-indigo-400">
-                {animatedTitle}
+              <p className="mt-3 h-9 text-xl font-semibold sm:text-2xl lg:text-3xl">
+                <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent dark:from-indigo-400 dark:to-violet-400">
+                  {animatedTitle}
+                </span>
                 {/* Blinking cursor */}
                 <span
-                  className="ml-0.5 inline-block w-0.5 h-6 bg-indigo-500 dark:bg-indigo-400 align-middle animate-pulse"
+                  className="ml-1 inline-block h-[1.1em] w-0.5 bg-indigo-500 align-middle animate-pulse dark:bg-indigo-400"
                   aria-hidden="true"
                 />
               </p>
@@ -237,9 +308,10 @@ export default function Hero() {
             )}
           </div>
 
-          {/* Right Column: Profile Photo Card with Subtle Ambient Glow */}
+          {/* Right Column: Profile Photo Card — 3D tilt wrapper for cursor depth */}
           <div className="flex justify-center lg:col-span-5">
-            <div className="animate-hero-pop group relative w-full max-w-sm sm:max-w-md">
+            <div className="hero-tilt w-full max-w-sm sm:max-w-md">
+            <div className="animate-hero-pop group relative">
               {/* Orbiting rings + dot around the profile card (continuous) */}
               <span
                 aria-hidden="true"
@@ -270,8 +342,9 @@ export default function Hero() {
 
               <div className="animate-hero-float relative">
                 {personalInfo.avatarUrl ? (
-                  <div className="relative overflow-hidden rounded-3xl border border-zinc-200/80 bg-white/80 p-2 shadow-xl backdrop-blur-xs transition-colors duration-300 group-hover:border-indigo-300 dark:border-zinc-800/80 dark:bg-zinc-900/80 dark:group-hover:border-indigo-500/50">
-                    <div className="relative overflow-hidden rounded-2xl">
+                  <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-indigo-400/60 via-violet-400/40 to-cyan-400/60 p-[3px] shadow-xl transition-shadow duration-500 group-hover:shadow-[0_0_40px_-8px_rgba(99,102,241,0.55)] dark:from-indigo-500/70 dark:via-violet-500/50 dark:to-cyan-500/70">
+                    <div className="relative overflow-hidden rounded-[calc(1.5rem-3px)] bg-white/85 p-2 backdrop-blur-xs dark:bg-zinc-900/85">
+                      <div className="relative overflow-hidden rounded-2xl">
                       <Image
                         src={personalInfo.avatarUrl}
                         alt={`${personalInfo.name} profile photo`}
@@ -286,6 +359,7 @@ export default function Hero() {
                         aria-hidden="true"
                         className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-indigo-500/10 via-transparent to-cyan-400/10 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
                       />
+                      </div>
                     </div>
                   </div>
                 ) : (
@@ -335,6 +409,7 @@ export default function Hero() {
                   </span>
                 </div>
               ))}
+            </div>
             </div>
 
             {/* Mini info cards stacked cleanly on small screens */}

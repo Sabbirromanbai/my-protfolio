@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, type CSSProperties } from "react";
 import {
   ArrowUpRightIcon,
   ExternalLinkIcon,
@@ -10,20 +10,35 @@ import {
 } from "./Icons";
 import { projects, type Project } from "@/data/projects";
 
+/**
+ * Accent RGB triplets ("R G B") per project, consumed by the `.proj-*` CSS
+ * variables in globals.css. Coordinated with each project's `accent` gradient;
+ * unknown ids fall back to indigo.
+ */
+const PROJECT_RGB: Record<string, string> = {
+  bazardor: "16 185 129", // emerald
+  fitlog: "34 211 238", // cyan
+  "school-app": "59 130 246", // blue
+  "pioneer-bank": "99 102 241", // indigo
+  "pin-matcher": "217 70 239", // fuchsia
+};
+
 function ProjectPreview({ project }: { project: Project }) {
   const [imageFailed, setImageFailed] = useState(false);
 
   return (
     <div className="relative aspect-[16/10] overflow-hidden bg-zinc-100 dark:bg-zinc-800">
       {!imageFailed ? (
-        <Image
-          src={project.image}
-          alt={`${project.title} project screenshot`}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] motion-reduce:transform-none"
-          onError={() => setImageFailed(true)}
-        />
+        <div className="proj-image-drift absolute inset-0">
+          <Image
+            src={project.image}
+            alt={`${project.title} project screenshot`}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover transition-transform duration-700 ease-out group-hover:[transform:perspective(900px)_rotateX(1.6deg)_rotateY(-1.6deg)_scale(1.06)] motion-reduce:group-hover:transform-none"
+            onError={() => setImageFailed(true)}
+          />
+        </div>
       ) : (
         <div className={`relative flex h-full items-center justify-center overflow-hidden bg-linear-to-br ${project.accent}`}>
           <div aria-hidden="true" className="absolute -left-10 -top-12 h-40 w-40 rounded-full bg-white/25 blur-3xl" />
@@ -50,6 +65,11 @@ function ProjectPreview({ project }: { project: Project }) {
           </span>
         </div>
       )}
+      {/* Gentle floating light accents over the screenshot */}
+      <span aria-hidden="true" className="proj-bubble pointer-events-none absolute left-6 top-8 h-2.5 w-2.5 rounded-full bg-white/40 blur-[2px] dark:bg-white/25" style={{ animationDelay: "0s" }} />
+      <span aria-hidden="true" className="proj-bubble pointer-events-none absolute right-10 top-1/3 h-1.5 w-1.5 rounded-full bg-white/30 blur-[2px] dark:bg-white/20" style={{ animationDelay: "1.6s" }} />
+      {/* Animated shine sweep on hover */}
+      <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 w-1/3 -translate-x-full skew-x-[-18deg] bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 transition-[transform,opacity] duration-700 ease-out group-hover:translate-x-[420%] group-hover:opacity-100 dark:via-white/10" />
       <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/25 via-transparent to-white/10 opacity-70 transition-opacity duration-300 group-hover:opacity-100" />
       {project.featured && (
         <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-black/25 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-lg backdrop-blur-md">
@@ -61,110 +81,147 @@ function ProjectPreview({ project }: { project: Project }) {
   );
 }
 
-function ProjectCard({ project, index }: { project: Project; index: number }) {
+interface CardProps {
+  project: Project;
+  index: number;
+  spans: boolean;
+}
+
+function ProjectCard({ project, index, spans }: CardProps) {
+  const accentRgb = PROJECT_RGB[project.id] ?? "99 102 241";
+
   return (
-    <article
+    <div
       style={{ animationDelay: `${index * 120}ms` }}
-      className={`project-reveal group relative flex h-full flex-col overflow-hidden rounded-[1.4rem] border border-zinc-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-indigo-300 hover:shadow-2xl hover:shadow-indigo-950/10 motion-reduce:animate-none motion-reduce:transform-none dark:border-white/10 dark:bg-zinc-900/80 dark:hover:border-indigo-400/40 dark:hover:shadow-indigo-950/30 ${project.featured ? "shadow-md shadow-indigo-500/5 ring-1 ring-indigo-300/50 dark:ring-indigo-400/20" : ""}`}
+      className={`project-reveal relative isolate h-full ${spans ? "sm:col-span-2" : ""}`}
     >
-      <div className={`absolute inset-x-0 top-0 z-10 h-1 bg-linear-to-r ${project.accent}`} />
-      <ProjectPreview project={project} />
+      {/* Slow ambient accent glow behind the card */}
+      <span
+        aria-hidden="true"
+        className={`proj-orb pointer-events-none absolute -inset-4 -z-10 rounded-3xl bg-linear-to-br ${project.accent}`}
+      />
 
-      <div className="flex flex-1 flex-col p-5 sm:p-6">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-indigo-600 dark:text-indigo-400">
-              {project.eyebrow}
-            </p>
-            <h3 className="mt-2 text-xl font-bold tracking-tight text-zinc-950 dark:text-white sm:text-2xl">
-              {project.title}
-            </h3>
-          </div>
-          <a
-            href={project.githubUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Open ${project.title} repository on GitHub`}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-zinc-200 text-zinc-600 transition-all duration-300 hover:rotate-6 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:border-white/10 dark:text-zinc-300 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-300 motion-reduce:transform-none"
-          >
-            <ArrowUpRightIcon className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transform-none" />
-          </a>
-        </div>
+      <article
+        className="proj-card group relative isolate flex h-full flex-col overflow-hidden rounded-[1.4rem] border border-zinc-200/70 bg-white/75 shadow-lg shadow-zinc-900/5 backdrop-blur-md dark:border-white/10 dark:bg-zinc-900/60 dark:shadow-black/20"
+        style={{ "--proj-accent": accentRgb } as CSSProperties}
+      >
+        {/* Animated accent ring (masked 1px conic sweep) */}
+        <span aria-hidden="true" className="proj-card-ring pointer-events-none absolute inset-0 rounded-[1.4rem]" />
 
-        <p className="mt-3 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
-          {project.description}
-        </p>
+        {/* Static accent top bar */}
+        <div className={`absolute inset-x-0 top-0 z-10 h-1 bg-linear-to-r ${project.accent}`} />
 
-        <p className="mt-2 text-xs leading-5 text-zinc-500 dark:text-zinc-400">
-          {project.longDescription}
-        </p>
+        <ProjectPreview project={project} />
 
-        <ul className="mt-5 flex flex-wrap gap-2" aria-label={`${project.title} technology stack`}>
-          {project.technologies.map(({ name, className, Icon }) => (
-            <li
-              key={name}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200/80 bg-zinc-50 px-2.5 py-1.5 text-[11px] font-semibold text-zinc-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-300 dark:border-white/10 dark:bg-white/[0.04] dark:text-zinc-200 motion-reduce:transform-none"
-            >
-              <Icon className={`h-3.5 w-3.5 ${className}`} />
-              {name}
-            </li>
-          ))}
-        </ul>
-
-        <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-zinc-200/80 pt-4 dark:border-white/10">
-          {project.liveUrl && (
+        <div className="flex flex-1 flex-col p-5 sm:p-6">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-indigo-600 dark:text-indigo-400">
+                  {project.eyebrow}
+                </p>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:ring-emerald-900/50">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  {project.status}
+                </span>
+              </div>
+              <h3 className="mt-2 text-xl font-bold tracking-tight text-zinc-950 transition-colors duration-300 group-hover:text-indigo-700 dark:text-white dark:group-hover:text-indigo-300 sm:text-2xl">
+                {project.title}
+              </h3>
+            </div>
             <a
-              href={project.liveUrl}
+              href={project.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-zinc-950 px-4 py-2 text-xs font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-white dark:text-zinc-950 dark:hover:bg-indigo-200 motion-reduce:transform-none"
+              aria-label={`Open ${project.title} repository on GitHub`}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-zinc-200 text-zinc-600 transition-all duration-300 hover:rotate-6 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 hover:shadow-md hover:shadow-indigo-500/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 active:scale-90 dark:border-white/10 dark:text-zinc-300 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-300 motion-reduce:transform-none"
             >
-              <ExternalLinkIcon className="h-3.5 w-3.5" />
-              Live Demo
+              <ArrowUpRightIcon className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transform-none" />
             </a>
-          )}
-          <a
-            href={project.githubUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-zinc-200 px-4 py-2 text-xs font-bold text-zinc-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:border-white/15 dark:text-zinc-200 dark:hover:border-indigo-400/40 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-200 motion-reduce:transform-none"
-          >
-            <GithubIcon className="h-3.5 w-3.5" />
-            Source Code
-          </a>
-          <Link
-            href={`/projects/${project.id}`}
-            aria-label={`View details of ${project.title}`}
-            className="ml-auto inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl bg-linear-to-r from-indigo-600 to-violet-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-indigo-950/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-600/30 hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 motion-reduce:transform-none"
-          >
-            View Details
-            <ArrowUpRightIcon className="h-3.5 w-3.5" />
-          </Link>
+          </div>
+
+          <p className="mt-3 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+            {project.description}
+          </p>
+
+          <p className="mt-2 text-xs leading-5 text-zinc-500 dark:text-zinc-400">
+            {project.longDescription}
+          </p>
+
+          <ul className="mt-5 flex flex-wrap gap-2" aria-label={`${project.title} technology stack`}>
+            {project.technologies.map(({ name, className, Icon }) => (
+              <li
+                key={name}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200/80 bg-zinc-50/80 px-2.5 py-1.5 text-[11px] font-semibold text-zinc-700 backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-300 dark:border-white/10 dark:bg-white/[0.04] dark:text-zinc-200 motion-reduce:transform-none"
+              >
+                <Icon className={`h-3.5 w-3.5 ${className}`} />
+                {name}
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-zinc-200/80 pt-4 dark:border-white/10">
+            {project.liveUrl && (
+              <a
+                href={project.liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-zinc-950 px-4 py-2 text-xs font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-indigo-700 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-white dark:text-zinc-950 dark:hover:bg-indigo-200 motion-reduce:transform-none"
+              >
+                <ExternalLinkIcon className="h-3.5 w-3.5" />
+                Live Demo
+              </a>
+            )}
+            <a
+              href={project.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-zinc-200 px-4 py-2 text-xs font-bold text-zinc-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:border-white/15 dark:text-zinc-200 dark:hover:border-indigo-400/40 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-200 motion-reduce:transform-none"
+            >
+              <GithubIcon className="h-3.5 w-3.5" />
+              Source Code
+            </a>
+            <Link
+              href={`/projects/${project.id}`}
+              aria-label={`View details of ${project.title}`}
+              className="ml-auto inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl bg-linear-to-r from-indigo-600 to-violet-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-indigo-950/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-600/30 hover:brightness-110 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 motion-reduce:transform-none"
+            >
+              View Details
+              <ArrowUpRightIcon className="h-3.5 w-3.5" />
+            </Link>
+          </div>
         </div>
-      </div>
-    </article>
+      </article>
+    </div>
   );
 }
 
 export default function FeaturedProjects() {
   const sectionRef = useRef<HTMLElement>(null);
-  const [visible, setVisible] = useState(false);
+  // `hasAppeared` latches the entrance reveal; `onScreen` pauses the continuous
+  // decorative animations while the section is off-screen.
+  const [hasAppeared, setHasAppeared] = useState(false);
+  const [onScreen, setOnScreen] = useState(false);
 
   useEffect(() => {
     const element = sectionRef.current;
     if (!element) return;
 
+    // Safety net: if IntersectionObserver is unavailable, reveal immediately;
+    // otherwise reveal everything shortly after even if the observer is blocked.
     if (typeof IntersectionObserver === "undefined") {
-      const frame = requestAnimationFrame(() => setVisible(true));
-      return () => cancelAnimationFrame(frame);
+      const frame = requestAnimationFrame(() => { setHasAppeared(true); setOnScreen(true); });
+      const fallback = window.setTimeout(() => setHasAppeared(true), 2500);
+      return () => {
+        cancelAnimationFrame(frame);
+        window.clearTimeout(fallback);
+      };
     }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
+        setOnScreen(entry.isIntersecting);
+        if (entry.isIntersecting) setHasAppeared(true);
       },
       { threshold: 0.08 }
     );
@@ -173,7 +230,7 @@ export default function FeaturedProjects() {
 
     // Safety net: if the observer never fires (blocked JS, odd browsers),
     // reveal everything after a short delay so content is never stuck hidden.
-    const fallback = window.setTimeout(() => setVisible(true), 2500);
+    const fallback = window.setTimeout(() => setHasAppeared(true), 2500);
 
     return () => {
       observer.disconnect();
@@ -181,41 +238,29 @@ export default function FeaturedProjects() {
     };
   }, []);
 
+  // The first featured project becomes the wide hero card; every row of the
+  // 3-column grid then stays completely filled (2 + 1 / 1 + 1 + 1).
+  const firstFeaturedId = React.useMemo(
+    () => projects.find((project) => project.featured)?.id ?? null,
+    []
+  );
+
   return (
     <section
       ref={sectionRef}
       id="projects"
       aria-labelledby="projects-heading"
-      className="relative isolate overflow-hidden border-t border-zinc-200/80 bg-white py-20 sm:py-28 dark:border-white/10 dark:bg-zinc-950"
+      className={`relative isolate overflow-hidden border-t border-zinc-200/80 bg-white py-20 sm:py-28 dark:border-white/10 dark:bg-zinc-950 ${
+        hasAppeared && !onScreen ? "proj-anim-paused" : ""
+      }`}
     >
-      <style jsx>{`
-        @keyframes projectReveal {
-          from { opacity: 0; transform: translateY(18px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .project-reveal {
-          opacity: 0;
-        }
-        .projects-visible .project-reveal {
-          animation: projectReveal 650ms cubic-bezier(.2,.75,.25,1) forwards;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .project-reveal,
-          .projects-visible .project-reveal {
-            animation: none;
-            opacity: 1;
-            transform: none;
-          }
-        }
-      `}</style>
-
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute left-[-10rem] top-16 h-72 w-72 rounded-full bg-violet-400/10 blur-3xl dark:bg-violet-600/10" />
-        <div className="absolute right-[-8rem] top-1/3 h-80 w-80 rounded-full bg-cyan-400/10 blur-3xl dark:bg-cyan-500/10" />
+        <div className="proj-ambient-a absolute left-[-10rem] top-16 h-72 w-72 rounded-full bg-violet-400/10 blur-3xl dark:bg-violet-600/10" />
+        <div className="proj-ambient-b absolute right-[-8rem] top-1/3 h-80 w-80 rounded-full bg-cyan-400/10 blur-3xl dark:bg-cyan-500/10" />
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-400/60 to-transparent" />
       </div>
 
-      <div className={`mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ${visible ? "projects-visible" : ""}`}>
+      <div className={`mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ${hasAppeared ? "projects-visible" : ""}`}>
         <div className="mb-11 flex flex-col gap-5 sm:mb-14 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-indigo-200/80 bg-indigo-50/80 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-700 dark:border-indigo-400/20 dark:bg-indigo-400/10 dark:text-indigo-300">
@@ -236,7 +281,7 @@ export default function FeaturedProjects() {
             href="https://github.com/Sabbirromanbai"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex w-fit shrink-0 items-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm font-bold text-zinc-800 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-300 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-zinc-100 dark:hover:border-indigo-400/40 dark:hover:text-indigo-300 motion-reduce:transform-none"
+            className="inline-flex w-fit shrink-0 items-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm font-bold text-zinc-800 shadow-sm backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-300 hover:text-indigo-700 hover:shadow-lg hover:shadow-indigo-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 active:scale-95 dark:border-white/10 dark:bg-white/[0.04] dark:text-zinc-100 dark:hover:border-indigo-400/40 dark:hover:text-indigo-300 motion-reduce:transform-none"
           >
             <GithubIcon className="h-4 w-4" />
             Explore GitHub
@@ -246,7 +291,12 @@ export default function FeaturedProjects() {
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3">
           {projects.map((project, index) => (
-            <ProjectCard key={project.id} project={project} index={index} />
+            <ProjectCard
+              key={project.id}
+              project={project}
+              index={index}
+              spans={project.id === firstFeaturedId}
+            />
           ))}
         </div>
 
